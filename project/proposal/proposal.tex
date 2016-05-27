@@ -1,0 +1,42 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+
+\usepackage{titling}
+
+\title{Target Tracking in Environments with Visual Occlusions}
+\author{Andrew Bylard and Maxim Egorov}
+%\date{}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+%\section{}
+%\subsection{}
+
+\section{Introduction and Target Tracking}
+
+Target tracking is an important challenge for many autonomous systems. In particular, autonomous vehicles such as cars or spacecraft may use optical sensors or radar to track nearby objects in order to avoid collision~\cite{tsalatsanis2007vision}, to follow~\cite{rafi2006autonomous}, or to rendezvous~\cite{xu2010autonomous} with a target.  However, in real environments, sensors often have to deal with obstructions, often leading to severely limited information about the environment. For example, a free-flying assistive robot conducting servicing or monitoring tasks near a space station may have its sensors occluded by solar panels or the main body of the space station. Thus, estimation algorithms must be used to leverage information and uncertainty to compute distributions on the probable location, velocity, and possibly the dynamics of targets of interest.
+
+
+A number of approaches exist for target tracking that originate in the state estimation literature~\cite{li2005survey}. The performance of these approaches is highly dependent on the problem in question, and is difficult to determine without domain knowledge. In this work we aim to compare three approaches for target tracking, namely discrete Bayesian filters, particle filters, and dual extended Kalman filters. Discrete Bayesian filters provide exact belief updates for systems with nonlinear dynamics and non-Gaussian noise, and are commonly used for state estimation in discrete decision making problems such as partially observable Markov decision processes~\cite{kochenderfer2015decision}. Particle filters are Monte Carlo methods that approximate the belief with point samples of the state space, and have been successfully used in a number of applications including multi-target tracking~\cite{okuma2004boosted} and face recognition~\cite{zhou2004visual}. 
+
+The extended Kalman filter performs state estimation for nonlinear systems by linearizing the state equations at each time step. A natural extension of this is a dual extended Kalman filter (DEKF), which turns uncertain parameters within the system dynamics into additional states to be estimated. Thus, the DEKF performs state estimation while learning better models of the true system dynamics. DEKFs have been used in a variety of applications, including aggressive control of a quadrotor~\cite{bouffard2012learning} and online parameter estimation of four-wheeled vehicles~\cite{wenzel2006dual}, enabling increased performance without the need for additional expensive sensors. The DEKF is guaranteed to converge for linear systems with fixed unknown parameters~\cite{ljung1979asymptotic}, which will be important for our application. 
+
+\section{Project Outline}
+
+In this project, we consider the problem of tracking a moving target using a stationary visual sensor. We consider two-dimensional environments with dynamic and non-convex visual obstructions that may prevent direct measurements of the target?s position. In addition, the dynamics of the tracked target may not be known with certainty and may include fixed or slowly-varying unknown parameters. The goal of this project is to empirically evaluate the performance of each filter for a variety of environments, sensors and dynamic models. Specifically, our aim is to examine how various obstruction shapes, process noise and sensor noise affect the tracking capability of each filter. 
+
+Using the DEKF, we will attempt to estimate uncertain parameters in the target such as its mass, friction characteristics, and moment of inertia. This may lead to better predictions of its future states. We will also apply an approach similar to DEKF to the discrete Bayesian filter and the particle filter by including uncertain parameters of the model in the system state. We will explore a number of characteristics of each filter, including computational complexity and compute time, tracking performance, and robustness. The goal of this project is to provide a comprehensive comparison of the three filters for the problem of target tracking with visual sensors.  
+
+
+\bibliographystyle{IEEEtran}
+
+{\bibliography{references}}
+
+
+\end{document}  
