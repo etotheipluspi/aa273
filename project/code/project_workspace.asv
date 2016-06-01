@@ -19,8 +19,8 @@ Jf = 2/5*mf*rf^2;   % [kg*m^2] Moment of inertia
 L = 0.05;           % [m] Gripper length
 
 % Grasped object parameters
-mo = 10;           % [kg] Mass
-ro = 0.30;          % [m] Radius
+mo = 100;           % [kg] Mass
+ro = 1;             % [m] Radius
 Jo = 2/5*mo*ro^2;   % [kg*m^2] Moment of inertia
 Rcm = rf+L+ro;      % [m] Distance between centers of mass
 alpha = 0;          % [rad] Object center of mass offset
@@ -41,7 +41,7 @@ t = 0:dt:T;
 xs0 = zeros(ns, 1);
 xs = zeros(ns, Nsteps+1);
 xs(:,1) = xs0;
-R = diag([0.1*ones(3,1); 0.0001*ones(3,1)]);
+R = diag([0.1*ones(3,1); 0.1*ones(3,1)]);
 
 %% State EKF 1 Setup
 x1s0 = xs0;
@@ -112,7 +112,7 @@ Cpt = zeros(m,np);
 y = zeros(m,Nsteps+1);
 
 %% Model Identification Setup
-twindow = 500;
+twindow = 100;
 mtest = zeros(2,Nsteps+1);
 m1_conf = zeros(Nsteps+1,1);
 m2_conf = zeros(Nsteps+1,1);
@@ -121,7 +121,7 @@ m2_conf = zeros(Nsteps+1,1);
 for i = 1:Nsteps
     % Parameter estimation flag
     dekf_on = 1;
-    model = 2;
+    model = 1;
     
     % Input
     a = 0.5;
@@ -312,8 +312,8 @@ for i = 1:Nsteps
 %                     (mu_mtot*tau+mu_mo*mu_rcm*(Fy*cta+Fx*sta))/mu_J1];
 
     % Check measurement probabilities
-    p1 = mvnpdf(y(:,i+1),y1s_up(:,i+1),R);
-    p2 = mvnpdf(y(:,i+1),y2s_up(:,i+1),R);
+    p1 = mvnpdf(y(:,i+1),C1st*mu1s_pr(:,i+1),R);
+    p2 = mvnpdf(y(:,i+1),C2st*mu2s_pr(:,i+1),R);
     if p1 > p2
         mtest(1,i+1) = 1;
     else
@@ -325,6 +325,7 @@ for i = 1:Nsteps
         m1_conf(i+1) = beta_a/(beta_a+beta_b);
         m2_conf(i+1) = 1-m1_conf(i+1);
     end
+    
     
 end
 
@@ -355,9 +356,7 @@ saveas(gcf,'EstAngle_M1.png')
 figure
 plot(t,mu1s_up(1,:),'r'); hold on
 plot(t,xs(1,:),'linewidth',2.5);
-if titles
-    title('Estimating X Velocity (Model 1)','fontsize',14)
-end
+title('Estimating X Velocity (Model 1)','fontsize',14)
 ylabel('Velocity (m/s)')
 grid on
 saveas(gcf,'EstXVelocity_M1.png')
@@ -463,9 +462,9 @@ plot(t,y1s_up(4,:),'r','linewidth',2.5)
 if titles
     title('Predicting X Acceleration Measurement (Model 1)','fontsize',14)
 end
-ylabel('Acceleration (m/s^2)')
+ylabel('Velocity (m/s)')
 grid on
-saveas(gcf,'MeasXAcceleration_M1.png')
+saveas(gcf,'MeasXVelocity_M1.png')
 
 figure
 plot(t,y(5,:)); hold on
@@ -473,9 +472,9 @@ plot(t,y1s_up(5,:),'r','linewidth',2.5)
 if titles
     title('Predicting Y Acceleration Measurement (Model 1)','fontsize',14)
 end
-ylabel('Acceleration (m/s^2)')
+ylabel('Velocity (m/s)')
 grid on
-saveas(gcf,'MeasYAcceleration_M1.png')
+saveas(gcf,'MeasYVelocity_M1.png')
 
 figure
 plot(t,y(6,:)*180/pi); hold on
@@ -515,19 +514,19 @@ plot(t,y2s_up(4,:),'r','linewidth',2.5)
 if titles
     title('Predicting X Acceleration Measurement (Model 2)','fontsize',14)
 end
-ylabel('Acceleration (m/s^2)')
+ylabel('Velocity (m/s)')
 grid on
-saveas(gcf,'MeasXAcceleration_M2.png')
+saveas(gcf,'MeasXVelocity_M2.png')
 
 figure
 plot(t,y(5,:)); hold on
 plot(t,y2s_up(5,:),'r','linewidth',2.5)
 if titles
-    title('Predicting Y Acceleration Measurement (Model 2)','fontsize',14)
+    title('Predicting Y Velocity Measurement (Model 2)','fontsize',14)
 end
-ylabel('Acceleration (m/s^2)')
+ylabel('Velocity (m/s)')
 grid on
-saveas(gcf,'MeasYAcceleration_M2.png')
+saveas(gcf,'MeasYVelocity_M2.png')
 
 figure
 plot(t,y(6,:)*180/pi); hold on
@@ -582,8 +581,8 @@ end
 
 %% Model Choice Plot
 figure
-plot(t,m1_conf,'linewidth',2.5); hold on
-plot(t,m2_conf,'g','linewidth',2.5);
+plot(t,m1_conf); hold on
+plot(t,m2_conf,'g');
 axis([0 70 0 1])
 grid on;
 if titles
